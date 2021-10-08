@@ -9,8 +9,8 @@ class SendinBlueTracker
     use Macroable;
 
     protected bool $enabled;
-    protected string $trackerId;
-    protected string $sessionKey;
+    protected $trackerId;
+    protected $sessionKey;
 
     public function __construct()
     {
