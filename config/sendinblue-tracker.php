@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'tracker_id' => env('SENDINBLUE_TRACKER_ID', null),
+    'tracker_id' => env('SENDINBLUE_TRACKER_ID', ''),
 
     /*
      * The key under which data is saved to the session with flash.
