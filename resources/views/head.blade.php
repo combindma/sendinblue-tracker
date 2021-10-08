@@ -5,7 +5,6 @@
                 equeue: [],
                 client_key: "{{ $trackerId }}"
             };
-            /* OPTIONAL: email for identify request*/
             @if($email)
             window.sib.email_id = '{{ $email }}';
             @endif

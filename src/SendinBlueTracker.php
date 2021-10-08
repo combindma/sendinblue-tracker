@@ -2,8 +2,13 @@
 
 namespace Combindma\SendinBlueTracker;
 
+
+use Illuminate\Support\Traits\Macroable;
+
 class SendinBlueTracker
 {
+    use Macroable;
+
     protected bool $enabled;
     protected string $trackerId;
     protected string $sessionKey;
@@ -60,7 +65,7 @@ class SendinBlueTracker
             $event .= ','.json_encode($userData);
         }
         if (! empty($eventData)) {
-            $event .= ",{'event data':".json_encode($eventData)."}";
+            $event .= ",".json_encode($eventData);
         }
         $event .= ");";
         session()->now($this->sessionKey().'.event', $event);
@@ -73,7 +78,7 @@ class SendinBlueTracker
             $event .= ','.json_encode($userData);
         }
         if (! empty($eventData)) {
-            $event .= ",{'event data':".json_encode($eventData)."}";
+            $event .= ",".json_encode($eventData);
         }
         $event .= ");";
         session()->flash($this->sessionKey().'.event', $event);
