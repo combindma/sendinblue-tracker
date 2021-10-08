@@ -2,7 +2,6 @@
 
 namespace Combindma\SendinBlueTracker;
 
-
 use Exception;
 use Illuminate\View\View;
 

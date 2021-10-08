@@ -2,7 +2,6 @@
 
 namespace Combindma\SendinBlueTracker;
 
-
 class SendinBlueTracker
 {
     protected bool $enabled;
@@ -33,19 +32,19 @@ class SendinBlueTracker
 
     public function getEmail()
     {
-        if (session()->has($this->sessionKey().'.email'))
-        {
+        if (session()->has($this->sessionKey().'.email')) {
             return session()->get($this->sessionKey().'.email');
         }
+
         return null;
     }
 
     public function getEvent()
     {
-        if (session()->has($this->sessionKey().'.event'))
-        {
+        if (session()->has($this->sessionKey().'.event')) {
             return session()->get($this->sessionKey().'.event');
         }
+
         return null;
     }
 
@@ -57,10 +56,10 @@ class SendinBlueTracker
     public function event($eventName, array $userData = [], array $eventData = [])
     {
         $event = "sendinblue.track('".$eventName."'";
-        if (!empty($userData)) {
+        if (! empty($userData)) {
             $event .= ','.json_encode($userData);
         }
-        if (!empty($eventData)) {
+        if (! empty($eventData)) {
             $event .= ",{'event data':".json_encode($eventData)."}";
         }
         $event .= ");";
@@ -70,10 +69,10 @@ class SendinBlueTracker
     public function flash($eventName, array $userData = [], array $eventData = [])
     {
         $event = "sendinblue.track('".$eventName."'";
-        if (!empty($userData)) {
+        if (! empty($userData)) {
             $event .= ','.json_encode($userData);
         }
-        if (!empty($eventData)) {
+        if (! empty($eventData)) {
             $event .= ",{'event data':".json_encode($eventData)."}";
         }
         $event .= ");";

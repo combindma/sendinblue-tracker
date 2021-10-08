@@ -33,10 +33,11 @@ class SendinBlueTrackerServiceProvider extends PackageServiceProvider
             'Combindma\SendinBlueTracker\ScriptViewCreator'
         );
     }
+
     public function packageRegistered()
     {
         $this->app->singleton('sendinblue-tracker', function () {
-            return new SendinBlueTracker;
+            return new SendinBlueTracker();
         });
     }
 }
