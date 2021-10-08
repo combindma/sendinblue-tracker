@@ -2,7 +2,6 @@
 
 namespace Combindma\SendinBlueTracker;
 
-
 use Illuminate\Support\Traits\Macroable;
 
 class SendinBlueTracker
