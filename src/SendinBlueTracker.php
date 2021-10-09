@@ -3,8 +3,8 @@
 namespace Combindma\SendinBlueTracker;
 
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Traits\Macroable;
 
@@ -63,7 +63,7 @@ class SendinBlueTracker
         return null;
     }
 
-    public function setEvent($eventName,array $eventData = [], array $userData = []): string
+    public function setEvent($eventName, array $eventData = [], array $userData = []): string
     {
         $event = "sendinblue.track('".$eventName."'";
         if (! empty($userData)) {
@@ -73,6 +73,7 @@ class SendinBlueTracker
             $event .= ",".json_encode($eventData);
         }
         $event .= ");";
+
         return $event;
     }
 
@@ -94,9 +95,9 @@ class SendinBlueTracker
     public function identifyPost($email, array $userData = [])
     {
         $data = [
-            'email' => $email
+            'email' => $email,
         ];
-        if (!empty($userData)) {
+        if (! empty($userData)) {
             $data['attributes'] = $userData;
         }
 
@@ -107,7 +108,7 @@ class SendinBlueTracker
     {
         $data = [
             'email' => $email,
-            'event' => $eventName
+            'event' => $eventName,
         ];
         if (! empty($userData)) {
             $data['properties'] = $userData;
@@ -115,13 +116,14 @@ class SendinBlueTracker
         if (! empty($eventData)) {
             $data['eventdata'] = $eventData;
         }
+
         return $this->sendRequest($data, 'POST', 'trackEvent');
     }
 
     protected function sendRequest($data, $type, $action)
     {
         try {
-            if (!$this->isEnabled() or empty($this->trackerId())) {
+            if (! $this->isEnabled() or empty($this->trackerId())) {
                 return null;
             }
             $client = new Client();
@@ -130,14 +132,16 @@ class SendinBlueTracker
                 'headers' => [
                     'ma-key' => $this->trackerId(),
                     'Accept' => 'application/json',
-                    'Content-Type' => 'application/json'
+                    'Content-Type' => 'application/json',
                 ],
             ])->getBody();
+
             return json_decode($body, true);
         } catch (GuzzleException | Exception $e) {
             if ($e->getCode() !== 404) {
                 Log::error($e);
             }
+
             return null;
         }
     }
