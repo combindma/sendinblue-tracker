@@ -34,9 +34,10 @@ return [
 ];
 ```
 
-## Usage
+## Usage (JS implementation)
+This is the js implementation. There is also RESTFUL implementation 
 
-### Embed in Blade
+### Embed in Blade (Only if you want to use JS implementation)
 First you'll need to include Sendinblue Tracker's script.
 
 ```html
@@ -66,15 +67,15 @@ The next method is how we fire an event within sendinblue, this can be used to t
 ```php
 SendinBlueTracker::event(
     'eventName',
+    // Event Data
+    [
+      'CTA_URL' => 'https://www.example.com',
+      'COST' => '20.00'
+    ],
     // User Data
     [
       'EMAIL' => 'email@email.com',
       'FIRSTNAME' => 'XXXXX'
-    ],
-  	// Event Data
-    [
-      'CTA_URL' => 'https://www.example.com',
-      'COST' => '20.00'
     ]
 );
 ```
@@ -85,17 +86,46 @@ The package can also set data to render on the next request. This is useful for 
 
 ```php
 SendinBlueTracker::flash(
-    'eventName',
-    // User Data
+    'event name',
+  	// Event Data (optional)
+    [
+      'CTA_URL' => 'https://www.example.com',
+      'COST' => '20.00'
+    ],
+    // User Data (optional)
+    [
+      'EMAIL' => 'email@email.com',
+      'FIRSTNAME' => 'XXXXX'
+    ]
+);
+```
+
+## Usage (RESTFUL implementation)
+For this implementation you don't need to include Sendinblue Tracker's script
+
+#### Identify
+
+```php
+SendinBlueTracker::identifyPost('email@email.com',[
+    'FIRSTNAME' => 'first name',
+    'LASTNAME' => 'last name'
+]);
+```
+
+#### Event
+
+```php
+SendinBlueTracker::eventPost('email@email.com', 'event name',
+  	// Event Data (optional)
+    [
+      'CTA_URL' => 'https://www.example.com',
+      'COST' => '20.00'
+    ],
+    // User Data (optional)
     [
       'EMAIL' => 'email@email.com',
       'FIRSTNAME' => 'XXXXX'
     ],
-  	// Event Data
-    [
-      'CTA_URL' => 'https://www.example.com',
-      'COST' => '20.00'
-    ]
 );
 ```
 

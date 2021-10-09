@@ -2,6 +2,10 @@
 
 namespace Combindma\SendinBlueTracker;
 
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Traits\Macroable;
 
 class SendinBlueTracker
@@ -11,12 +15,14 @@ class SendinBlueTracker
     protected bool $enabled;
     protected $trackerId;
     protected $sessionKey;
+    protected $baseUri;
 
     public function __construct()
     {
         $this->enabled = config('sendinblue-tracker.enabled');
         $this->trackerId = (config('sendinblue-tracker.tracker_id'));
         $this->sessionKey = config('sendinblue-tracker.sessionKey');
+        $this->baseUri = 'https://in-automate.sendinblue.com/api/v2/';
     }
 
     public function isEnabled()
@@ -27,6 +33,11 @@ class SendinBlueTracker
     public function trackerId()
     {
         return $this->trackerId;
+    }
+
+    public function baseUri()
+    {
+        return $this->baseUri;
     }
 
     public function sessionKey()
@@ -52,34 +63,82 @@ class SendinBlueTracker
         return null;
     }
 
+    public function setEvent($eventName,array $eventData = [], array $userData = []): string
+    {
+        $event = "sendinblue.track('".$eventName."'";
+        if (! empty($userData)) {
+            $event .= ','.json_encode($userData);
+        }
+        if (! empty($eventData)) {
+            $event .= ",".json_encode($eventData);
+        }
+        $event .= ");";
+        return $event;
+    }
+
     public function identify(string $email)
     {
         session()->put($this->sessionKey().'.email', $email);
     }
 
-    public function event($eventName, array $userData = [], array $eventData = [])
+    public function event(string $eventName, array $eventData = [], array $userData = [])
     {
-        $event = "sendinblue.track('".$eventName."'";
-        if (! empty($userData)) {
-            $event .= ','.json_encode($userData);
-        }
-        if (! empty($eventData)) {
-            $event .= ",".json_encode($eventData);
-        }
-        $event .= ");";
-        session()->now($this->sessionKey().'.event', $event);
+        session()->now($this->sessionKey().'.event', $this->setEvent($eventName, $eventData, $userData));
     }
 
-    public function flash($eventName, array $userData = [], array $eventData = [])
+    public function flash(string $eventName, array $eventData = [], array $userData = [])
     {
-        $event = "sendinblue.track('".$eventName."'";
+        session()->flash($this->sessionKey().'.event', $this->setEvent($eventName, $eventData, $userData));
+    }
+
+    public function identifyPost($email, array $userData = [])
+    {
+        $data = [
+            'email' => $email
+        ];
+        if (!empty($userData)) {
+            $data['attributes'] = $userData;
+        }
+
+        return $this->sendRequest($data, 'POST', 'identify');
+    }
+
+    public function eventPost(string $email, string $eventName, array $eventData = [], array $userData = [])
+    {
+        $data = [
+            'email' => $email,
+            'event' => $eventName
+        ];
         if (! empty($userData)) {
-            $event .= ','.json_encode($userData);
+            $data['properties'] = $userData;
         }
         if (! empty($eventData)) {
-            $event .= ",".json_encode($eventData);
+            $data['eventdata'] = $eventData;
         }
-        $event .= ");";
-        session()->flash($this->sessionKey().'.event', $event);
+        return $this->sendRequest($data, 'POST', 'trackEvent');
+    }
+
+    protected function sendRequest($data, $type, $action)
+    {
+        try {
+            if (!$this->isEnabled() or empty($this->trackerId())) {
+                return null;
+            }
+            $client = new Client();
+            $body = (string)$client->request($type, $this->baseUri() . $action, [
+                'body' => json_encode($data),
+                'headers' => [
+                    'ma-key' => $this->trackerId(),
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ],
+            ])->getBody();
+            return json_decode($body, true);
+        } catch (GuzzleException | Exception $e) {
+            if ($e->getCode() !== 404) {
+                Log::error($e);
+            }
+            return null;
+        }
     }
 }
