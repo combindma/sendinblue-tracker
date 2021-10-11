@@ -24,6 +24,7 @@ class ScriptViewCreator
             ->with('enabled', $this->sendinBlueTracker->isEnabled())
             ->with('trackerId', $this->sendinBlueTracker->trackerId())
             ->with('email', $this->sendinBlueTracker->getEmail())
+            ->with('identify', $this->sendinBlueTracker->getIdentify())
             ->with('event', $this->sendinBlueTracker->getEvent());
     }
 }

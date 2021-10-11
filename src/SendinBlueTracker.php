@@ -63,6 +63,15 @@ class SendinBlueTracker
         return null;
     }
 
+    public function getIdentify()
+    {
+        if (session()->has($this->sessionKey().'.identify')) {
+            return session()->get($this->sessionKey().'.identify');
+        }
+
+        return null;
+    }
+
     public function setEvent($eventName, array $eventData = [], array $userData = []): string
     {
         $event = "sendinblue.track('".$eventName."'";
@@ -77,8 +86,14 @@ class SendinBlueTracker
         return $event;
     }
 
-    public function identify(string $email)
+    public function identify(string $email, array $userData = [])
     {
+        $identify = "sendinblue.identify('$email'";
+        if (! empty($userData)) {
+            $identify .= ','.json_encode($userData);
+        }
+        $identify .= ");";
+        session()->flash($this->sessionKey().'.identify', $identify);
         session()->put($this->sessionKey().'.email', $email);
     }
 
